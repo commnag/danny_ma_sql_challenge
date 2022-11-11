@@ -1,9 +1,12 @@
 **Schema (PostgreSQL v13)**
 
 
-**Query #1**
-1. What is the unique count and total amount for each transaction type?
     
+
+---
+
+**Query #1**
+
     SELECT txn_type, COUNT(txn_amount) as unique_count, SUM(txn_amount) as total_amount 
     FROM data_bank.customer_transactions
     GROUP BY txn_type;
@@ -16,8 +19,7 @@
 
 ---
 **Query #2**
-2. What is the average total historical deposit counts and amounts for all customers?
-    
+
     SELECT COUNT(*) as deposit_counts, AVG(txn_amount) as average_amounts
     FROM data_bank.customer_transactions
     WHERE txn_type = 'deposit';
