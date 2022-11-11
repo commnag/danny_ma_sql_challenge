@@ -1,9 +1,9 @@
 **Schema (PostgreSQL v13)**
-
 ---
+
 **Query #1**
 1. How many customers has Foodie-Fi ever had?
-
+    
     SELECT COUNT(DISTINCT(customer_id)) as total_customers
     FROM foodie_fi.subscriptions;
 
