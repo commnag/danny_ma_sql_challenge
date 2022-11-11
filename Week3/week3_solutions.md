@@ -1,8 +1,7 @@
 **Schema (PostgreSQL v13)**
 ---
 
-**Query #1**
-1. How many customers has Foodie-Fi ever had?
+**Query #1** How many customers has Foodie-Fi ever had?
     
     SELECT COUNT(DISTINCT(customer_id)) as total_customers
     FROM foodie_fi.subscriptions;
@@ -12,8 +11,7 @@
 | 1000            |
 
 ---
-**Query #2**
-2. What is the monthly distribution of trial plan start_date values for our dataset - use the start of the month as the group by value
+**Query #2** What is the monthly distribution of trial plan start_date values for our dataset - use the start of the month as the group by value
     
     SELECT EXTRACT(MONTH FROM start_date) as months, COUNT(*)
     FROM foodie_fi.subscriptions
@@ -37,8 +35,7 @@
 | 12     | 84    |
 
 ---
-**Query #3**
-3. What plan start_date values occur after the year 2020 for our dataset? Show the breakdown by count of events for each plan_name
+**Query #3** What plan start_date values occur after the year 2020 for our dataset? Show the breakdown by count of events for each plan_name
     
     SELECT pl.plan_name, COUNT(*)
     FROM foodie_fi.plans pl
@@ -56,8 +53,7 @@
 | basic monthly | 8     |
 
 ---
-**Query #4**
-4. What is the customer count and percentage of customers who have churned rounded to 1 decimal place?
+**Query #4** What is the customer count and percentage of customers who have churned rounded to 1 decimal place?
     
     SELECT COUNT(DISTINCT(customer_id)) as churn_count,
     ROUND(COUNT(DISTINCT(customer_id))*100.0/(SELECT COUNT(DISTINCT(s.customer_id)) FROM foodie_fi.subscriptions s), 1) as chur_percent
@@ -69,8 +65,7 @@
 | 307         | 30.7         |
 
 ---
-**Query #5**
-5. How many customers have churned straight after their initial free trial - what percentage is this rounded to the nearest whole number?
+**Query #5** How many customers have churned straight after their initial free trial - what percentage is this rounded to the nearest whole number?
     
     SELECT COUNT(tbl.customer_id) as total_count, 
     ROUND(COUNT(tbl.customer_id)*100.0/(SELECT COUNT(DISTINCT(s.customer_id)) FROM foodie_fi.subscriptions s)) as percentage 
@@ -86,8 +81,7 @@
 | 92          | 9          |
 
 ---
-**Query #6**
-6. What is the number and percentage of customer plans after their initial free trial?
+**Query #6** What is the number and percentage of customer plans after their initial free trial?
     
     SELECT 'Couldnt solve this';
 
@@ -96,8 +90,7 @@
 | Couldnt solve this |
 
 ---
-**Query #7**
-7. What is the customer count and percentage breakdown of all 5 plan_name values at 2020-12-31?
+**Query #7** What is the customer count and percentage breakdown of all 5 plan_name values at 2020-12-31?
     
     SELECT pl.plan_name, COUNT(s.customer_id) 
     FROM foodie_fi.subscriptions s
@@ -111,8 +104,7 @@
 | churn     | 1     |
 
 ---
-**Query #8**
-8. How many customers have upgraded to an annual plan in 2020?
+**Query #8** How many customers have upgraded to an annual plan in 2020?
     
     SELECT COUNT(DISTINCT(customer_id)) as total_count
     FROM foodie_fi.subscriptions
@@ -124,8 +116,7 @@
 | 195         |
 
 ---
-**Query #9**
-9. How many days on average does it take for a customer to an annual plan from the day they join Foodie-Fi?
+**Query #9** How many days on average does it take for a customer to an annual plan from the day they join Foodie-Fi?
     
     SELECT 'Couldnt solve this';
 
@@ -134,8 +125,7 @@
 | Couldnt solve this |
 
 ---
-**Query #10**
-10. Can you further breakdown this average value into 30 day periods (i.e. 0-30 days, 31-60 days etc)
+**Query #10** Can you further breakdown this average value into 30 day periods (i.e. 0-30 days, 31-60 days etc)
     
     SELECT 'Couldnt solve this';
 
@@ -144,8 +134,7 @@
 | Couldnt solve this |
 
 ---
-**Query #11**
-11. How many customers downgraded from a pro monthly to a basic monthly plan in 2020?
+**Query #11** How many customers downgraded from a pro monthly to a basic monthly plan in 2020?
     
     SELECT 'Couldnt solve this';
 
