@@ -1,5 +1,6 @@
 **Schema (PostgreSQL v13)**
 
+---
 **Query #1**
 1. How many customers has Foodie-Fi ever had?
 
