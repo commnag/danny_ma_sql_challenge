@@ -5,8 +5,7 @@
 
 ---
 
-**Query #1**
-1. What is the unique count and total amount for each transaction type?
+**Query #1** What is the unique count and total amount for each transaction type?
 
     SELECT txn_type, COUNT(txn_amount) as unique_count, SUM(txn_amount) as total_amount 
     FROM data_bank.customer_transactions
@@ -19,8 +18,7 @@
 | withdrawal | 1580         | 793003       |
 
 ---
-**Query #2**
-2. What is the average total historical deposit counts and amounts for all customers?
+**Query #2** What is the average total historical deposit counts and amounts for all customers?
 
     SELECT COUNT(*) as deposit_counts, AVG(txn_amount) as average_amounts
     FROM data_bank.customer_transactions
