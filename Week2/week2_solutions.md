@@ -317,5 +317,154 @@
 | 3         | 50                  |
 
 ---
+<p align=center><b>D. Pricing and Ratings</b>
+
+---
+**Query #1** If a Meat Lovers pizza costs $12 and Vegetarian costs $10 and there were no charges for changes - how much money has Pizza Runner made so far if there are no delivery fees?
+
+    WITH costs AS (
+    SELECT *, 
+    CASE
+    	WHEN pn.pizza_name = 'Meatlovers' THEN 12
+        ELSE 10
+    END as pizza_cost
+    FROM pizza_runner.customer_orders co
+    JOIN pizza_runner.pizza_names pn
+    ON co.pizza_id = pn.pizza_id
+    JOIN pizza_runner.runner_orders ro
+    ON ro.order_id = co.order_id
+    WHERE ro.cancellation IS NULL
+    )
+    
+    SELECT SUM(costs.pizza_cost) as total_money_made FROM costs;
+
+| total_money_made |
+| ---------------- |
+| 138              |
+
+---
+**Query #2** What if there was an additional $1 charge for any pizza extras? Add cheese is $1 extra.
+
+    WITH costs AS (
+    SELECT *, 
+    CASE
+    	WHEN pn.pizza_name = 'Meatlovers' THEN 12
+        ELSE 10
+    END as pizza_cost
+    FROM pizza_runner.customer_orders co
+    JOIN pizza_runner.pizza_names pn
+    ON co.pizza_id = pn.pizza_id
+    JOIN pizza_runner.runner_orders ro
+    ON ro.order_id = co.order_id
+    WHERE ro.cancellation IS NULL
+    ), extra_costs as (
+    SELECT costs.extras, costs.pizza_cost as total_money_made,
+    CASE
+    	WHEN costs.extras IS NOT NULL THEN 
+        	CASE
+            	WHEN costs.extras LIKE '%4%' THEN costs.pizza_cost+2
+                ELSE costs.pizza_cost+1
+            END
+        ELSE costs.pizza_cost
+    END as adjusted_money_made
+    FROM costs
+    )
+    
+    SELECT SUM(extra_costs.adjusted_money_made) as total_money_made_using_extras FROM extra_costs;
+
+| total_money_made_using_extras |
+| ----------------------------- |
+| 142                           |
+    
+---
+**Query #3** The Pizza Runner team now wants to add an additional ratings system that allows customers to rate their runner, how would you design an additional table for this new dataset - generate a schema for this new table and insert your own data for ratings for each successful customer order between 1 to 5.
+
+    DROP TABLE IF EXISTS pizza_runner.ratings;
+    CREATE TABLE pizza_runner.ratings (
+      "order_id" INTEGER,
+      "rating" INTEGER,
+      "comments" VARCHAR(50)
+    );
+
+    INSERT INTO pizza_runner.ratings
+    VALUES (1, 4, 'Good');
+    INSERT INTO pizza_runner.ratings
+    VALUES (3, 5, 'Excellent Service');
+    INSERT INTO pizza_runner.ratings
+    VALUES (5, 3, 'Delay in delivery');
+    INSERT INTO pizza_runner.ratings
+    VALUES (2, 1, 'Not satisfied');
+    INSERT INTO pizza_runner.ratings
+    VALUES (4, 5, 'Happy');
+
+    SELECT * FROM pizza_runner.ratings;
+
+| order_id | rating | comments          |
+| -------- | ------ | ----------------- |
+| 1        | 4      | Good              |
+| 3        | 5      | Excellent Service |
+| 5        | 3      | Delay in delivery |
+| 2        | 1      | Not satisfied     |
+| 4        | 5      | Happy             |
+
+---
+**Query #4** If a Meat Lovers pizza was $12 and Vegetarian $10 fixed prices with no cost for extras and each runner is paid $0.30 per kilometre traveled - how much money does Pizza Runner have left over after these deliveries?
+
+    WITH costs AS (
+    SELECT *, 
+    CASE
+    	WHEN pn.pizza_name = 'Meatlovers' THEN 12
+        ELSE 10
+    END as pizza_cost,
+    ((substring(ro.distance from '\d*')::INTEGER) * 0.30) as dist_cost
+    FROM pizza_runner.customer_orders co
+    JOIN pizza_runner.pizza_names pn
+    ON co.pizza_id = pn.pizza_id
+    JOIN pizza_runner.runner_orders ro
+    ON ro.order_id = co.order_id
+    WHERE ro.cancellation IS NULL
+    )
+    
+    SELECT SUM(pizza_cost - dist_cost) as money_left FROM costs;
+
+| money_left |
+| ---------- |
+| 74.10      |
+
+---
+<p align=center><b>E. Bonus Questions</b>
+
+---
+**If Danny wants to expand his range of pizzas - how would this impact the existing data design? Write an INSERT statement to demonstrate what would happen if a new Supreme pizza with all the toppings was added to the Pizza Runner menu?**
+
+    INSERT INTO pizza_runner.pizza_names
+    VALUES(3, 'Supreme');
+
+    INSERT INTO pizza_runner.pizza_recipes
+    VALUES(3, '1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12');
+
+---
+**Query #1**
+
+    SELECT * FROM pizza_runner.pizza_names;
+
+| pizza_id | pizza_name |
+| -------- | ---------- |
+| 1        | Meatlovers |
+| 2        | Vegetarian |
+| 3        | Supreme    |
+
+---
+**Query #2**
+
+    SELECT * FROM pizza_runner.pizza_recipes;
+
+| pizza_id | toppings                              |
+| -------- | ------------------------------------- |
+| 1        | 1, 2, 3, 4, 5, 6, 8, 10               |
+| 2        | 4, 6, 7, 9, 11, 12                    |
+| 3        | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 |
+
+---
 
 [View on DB Fiddle](https://www.db-fiddle.com/f/7VcQKQwsS3CTkGRFG7vu98/65)
