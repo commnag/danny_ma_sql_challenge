@@ -84,13 +84,26 @@
 | 92          | 9          |
 
 ---
-**Query #6** What is the number and percentage of customer plans after their initial free trial?
-    
-    SELECT 'Couldnt solve this';
 
-| ?column?           |
-| ------------------ |
-| Couldnt solve this |
+**Query #6**
+
+    WITH next_plan_cte AS
+    (SELECT *, LEAD(plan_id, 1)
+     OVER(PARTITION BY customer_id ORDER BY start_date) as next_plan
+    FROM foodie_fi.subscriptions)
+     
+    SELECT next_plan, COUNT(*) as count_customer_plans, ROUND(100.0 * COUNT(*)/(SELECT COUNT(DISTINCT s1.customer_id) FROM foodie_fi.subscriptions s1), 1) as percentage_customer_plans
+    FROM next_plan_cte
+    WHERE plan_id = 0 AND next_plan IS NOT NULL
+    GROUP BY next_plan;
+
+| next_plan | count_customer_plans | percentage_customer_plans |
+| --------- | -------------------- | ------------------------- |
+| 1         | 546                  | 54.6                      |
+| 2         | 325                  | 32.5                      |
+| 3         | 37                   | 3.7                       |
+| 4         | 92                   | 9.2                       |
+
 
 ---
 **Query #7** What is the customer count and percentage breakdown of all 5 plan_name values at 2020-12-31?
@@ -120,30 +133,89 @@
 
 ---
 **Query #9** How many days on average does it take for a customer to an annual plan from the day they join Foodie-Fi?
-    
-    SELECT 'Couldnt solve this';
 
-| ?column?           |
-| ------------------ |
-| Couldnt solve this |
+    WITH initial_date_cte AS
+    (SELECT customer_id, start_date
+    FROM foodie_fi.subscriptions
+    WHERE plan_id = 0),
+    annual_date_cte AS
+    (SELECT customer_id, start_date
+    FROM foodie_fi.subscriptions
+    WHERE plan_id = 3)
+    
+    SELECT ROUND(AVG(adc.start_date - idc.start_date)) as avg_days
+    FROM initial_date_cte idc
+    JOIN annual_date_cte adc
+    ON idc.customer_id = adc.customer_id;
+
+| avg_days |
+| -------- |
+| 105      |
 
 ---
 **Query #10** Can you further breakdown this average value into 30 day periods (i.e. 0-30 days, 31-60 days etc)
-    
-    SELECT 'Couldnt solve this';
 
-| ?column?           |
-| ------------------ |
-| Couldnt solve this |
+    WITH initial_date_cte AS
+    (SELECT customer_id, start_date
+    FROM foodie_fi.subscriptions
+    WHERE plan_id = 0),
+    
+    annual_date_cte AS
+    (SELECT customer_id, start_date
+    FROM foodie_fi.subscriptions
+    WHERE plan_id = 3),
+    
+    bins AS
+    (SELECT WIDTH_BUCKET(adc.start_date - idc.start_date, 0, 360, 12) as upgrade_days 
+    FROM initial_date_cte idc 
+    JOIN annual_date_cte adc
+    ON idc.customer_id = adc.customer_id)
+    
+    SELECT 
+      ((upgrade_days - 1) * 30 || ' - ' ||   (upgrade_days) * 30) || ' days' AS breakdown, 
+      COUNT(*) AS customers
+    FROM bins
+    GROUP BY upgrade_days
+    ORDER BY upgrade_days;
+
+| breakdown      | customers |
+| -------------- | --------- |
+| 0 - 30 days    | 48        |
+| 30 - 60 days   | 25        |
+| 60 - 90 days   | 33        |
+| 90 - 120 days  | 35        |
+| 120 - 150 days | 43        |
+| 150 - 180 days | 35        |
+| 180 - 210 days | 27        |
+| 210 - 240 days | 4         |
+| 240 - 270 days | 5         |
+| 270 - 300 days | 1         |
+| 300 - 330 days | 1         |
+| 330 - 360 days | 1         |
 
 ---
 **Query #11** How many customers downgraded from a pro monthly to a basic monthly plan in 2020?
-    
-    SELECT 'Couldnt solve this';
 
-| ?column?           |
-| ------------------ |
-| Couldnt solve this |
+    WITH pro_monthly_cte AS
+    (SELECT customer_id, start_date
+    FROM foodie_fi.subscriptions
+    WHERE plan_id = 2),
+    
+    basic_monthly_cte AS
+    (SELECT customer_id, start_date
+    FROM foodie_fi.subscriptions
+    WHERE plan_id = 0)
+    
+    SELECT COUNT(*) as downgraded_count
+    FROM pro_monthly_cte pmc
+    JOIN basic_monthly_cte bmc
+    ON pmc.customer_id = bmc.customer_id
+    WHERE pmc.start_date < bmc.start_date
+    AND EXTRACT(YEAR FROM pmc.start_date) = '2020';
+
+| downgraded_count |
+| ---------------- |
+| 0                |
 
 ---
 
