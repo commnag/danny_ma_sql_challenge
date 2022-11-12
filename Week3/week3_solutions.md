@@ -1,6 +1,9 @@
 **Schema (PostgreSQL v13)**
----
 
+---
+<p align=center><b>B. Data Analysis Questions</b>
+
+---
 **Query #1** How many customers has Foodie-Fi ever had?
     
     SELECT COUNT(DISTINCT(customer_id)) as total_customers
