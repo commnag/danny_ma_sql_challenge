@@ -34,7 +34,9 @@
     WHERE cancellation NOT LIKE '%Cancellation';
 
 ---
-<p align=center> **A. Pizza Metrics** </p>
+<p align=center><b>A. Pizza Metrics</b>
+
+---
 **Query #1** How many pizzas were ordered?
 
     SELECT COUNT(*) as total_ordered
@@ -152,7 +154,9 @@
 | 23    | 3                      |
 
 ---
-<p align=center> **B. Runner and Customer Experience** </p>
+<p align=center><b>B. Runner and Customer Experience</b>
+
+---
 **Query #1** How many runners signed up for each 1 week period? (i.e. week starts 2021-01-01)
 
     SELECT EXTRACT('week' FROM registration_date+3) as week, COUNT(runner_id) 
