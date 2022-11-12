@@ -2,66 +2,40 @@
 
 ---
 
-**Query #1**
+**Cleaning the data** 
 
     UPDATE pizza_runner.customer_orders
     SET exclusions = NULL
     WHERE exclusions = 'null' 
     OR exclusions = '';
 
-There are no results to be displayed.
-
----
-**Query #2**
-
     UPDATE pizza_runner.customer_orders
     SET extras = NULL
     WHERE extras = 'null' 
     OR extras = '';
-
-There are no results to be displayed.
-
----
-**Query #3**
 
     UPDATE pizza_runner.runner_orders
     SET pickup_time = NULL
     WHERE pickup_time = 'null' 
     OR pickup_time = '';
 
-There are no results to be displayed.
-
----
-**Query #4**
-
     UPDATE pizza_runner.runner_orders
     SET distance = NULL
     WHERE distance = 'null' 
     OR distance = '';
-
-There are no results to be displayed.
-
----
-**Query #5**
 
     UPDATE pizza_runner.runner_orders
     SET duration = NULL
     WHERE duration = 'null' 
     OR duration = '';
 
-There are no results to be displayed.
-
----
-**Query #6**
-
     UPDATE pizza_runner.runner_orders
     SET cancellation = NULL
     WHERE cancellation NOT LIKE '%Cancellation';
 
-There are no results to be displayed.
-
 ---
-**Query #7** How many pizzas were ordered?
+<p align=center> **A. Pizza Metrics** </p>
+**Query #1** How many pizzas were ordered?
 
     SELECT COUNT(*) as total_ordered
     FROM pizza_runner.customer_orders;
@@ -71,7 +45,7 @@ There are no results to be displayed.
 | 14            |
 
 ---
-**Query #8** How many unique customer orders were made?
+**Query #2** How many unique customer orders were made?
 
     SELECT COUNT(DISTINCT(order_id)) as total_ordered
     FROM pizza_runner.customer_orders;
@@ -81,7 +55,7 @@ There are no results to be displayed.
 | 10            |
 
 ---
-**Query #9** How many successful orders were delivered by each runner?
+**Query #3** How many successful orders were delivered by each runner?
 
     SELECT COUNT(*) as total_delivered
     FROM pizza_runner.runner_orders
@@ -92,7 +66,7 @@ There are no results to be displayed.
 | 8               |
 
 ---
-**Query #10** How many of each type of pizza was delivered?
+**Query #4** How many of each type of pizza was delivered?
 
     SELECT pizza_name, COUNT(*) as total_delivered
     FROM pizza_runner.pizza_names na
@@ -109,7 +83,7 @@ There are no results to be displayed.
 | Vegetarian | 3               |
 
 ---
-**Query #11** How many Vegetarian and Meatlovers were ordered by each customer?
+**Query #5** How many Vegetarian and Meatlovers were ordered by each customer?
 
     SELECT co.customer_id, na.pizza_name, COUNT(*) as total_ordered
     FROM pizza_runner.customer_orders co
@@ -130,7 +104,7 @@ There are no results to be displayed.
 | 105         | Vegetarian | 1             |
 
 ---
-**Query #12** What was the maximum number of pizzas delivered in a single order?
+**Query #6** What was the maximum number of pizzas delivered in a single order?
 
     SELECT COUNT(*) as max_pizza_delivered
     FROM pizza_runner.customer_orders co
@@ -146,7 +120,7 @@ There are no results to be displayed.
 | 3                   |
 
 ---
-**Query #13** How many pizzas were delivered that had both exclusions and extras?
+**Query #8** How many pizzas were delivered that had both exclusions and extras?
 
     SELECT COUNT(co.pizza_id) 
     FROM pizza_runner.customer_orders co
@@ -161,7 +135,7 @@ There are no results to be displayed.
 | 1     |
 
 ---
-**Query #14** What was the total volume of pizzas ordered for each hour of the day?
+**Query #9** What was the total volume of pizzas ordered for each hour of the day?
 
     SELECT EXTRACT(HOUR FROM order_time) as hours, COUNT(pizza_id) as total_volume_of_pizzas 
     FROM pizza_runner.customer_orders
@@ -178,7 +152,8 @@ There are no results to be displayed.
 | 23    | 3                      |
 
 ---
-**Query #15** How many runners signed up for each 1 week period? (i.e. week starts 2021-01-01)
+<p align=center> **B. Runner and Customer Experience** </p>
+**Query #1** How many runners signed up for each 1 week period? (i.e. week starts 2021-01-01)
 
     SELECT EXTRACT('week' FROM registration_date+3) as week, COUNT(runner_id) 
     FROM pizza_runner.runners
@@ -192,7 +167,7 @@ There are no results to be displayed.
 | 3    | 1     |
 
 ---
-**Query #16** What was the average distance travelled for each customer?
+**Query #4** What was the average distance travelled for each customer?
 
     SELECT co.customer_id, ROUND(AVG(substring(ro.distance from '\d*')::INTEGER), 1) as avg_dist_travelled
     FROM pizza_runner.runner_orders ro
@@ -210,7 +185,7 @@ There are no results to be displayed.
 | 105         | 25.0               |
 
 ---
-**Query #17** What was the difference between the longest and shortest delivery times for all orders?
+**Query #5** What was the difference between the longest and shortest delivery times for all orders?
 
     SELECT (MAX(substring(duration from '\d*')::INTEGER) - MIN(substring(duration from '\d*')::INTEGER)) as duration_diff
     FROM pizza_runner.runner_orders;
@@ -220,7 +195,7 @@ There are no results to be displayed.
 | 30            |
 
 ---
-**Query #18** What was the average speed for each runner for each delivery and do you notice any trend for these values?
+**Query #6** What was the average speed for each runner for each delivery and do you notice any trend for these values?
 
     SELECT runner_id, order_id, ROUND((substring(distance from '\d*')::INTEGER * 60.0)/(substring(duration from '\d*')::INTEGER), 1) as speed_kmph
     FROM pizza_runner.runner_orders
@@ -240,7 +215,7 @@ There are no results to be displayed.
 | 3         | 5        | 40.0       |
 
 ---
-**Query #19** What is the successful delivery percentage for each runner?
+**Query #7** What is the successful delivery percentage for each runner?
 
     SELECT r1.runner_id, ROUND(COUNT(r1.order_id)*100.0/(SELECT COUNT(*) FROM pizza_runner.runner_orders WHERE runner_id = r1.runner_id)) as delivery_percentage
     FROM pizza_runner.runner_orders r1
