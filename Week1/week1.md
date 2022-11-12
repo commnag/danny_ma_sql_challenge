@@ -1,62 +1,8 @@
 **Schema (PostgreSQL v15 (Beta))**
 
-    CREATE SCHEMA dannys_diner;
-    SET search_path = dannys_diner;
-    
-    CREATE TABLE sales (
-      "customer_id" VARCHAR(1),
-      "order_date" DATE,
-      "product_id" INTEGER
-    );
-    
-    INSERT INTO sales
-      ("customer_id", "order_date", "product_id")
-    VALUES
-      ('A', '2021-01-01', '1'),
-      ('A', '2021-01-01', '2'),
-      ('A', '2021-01-07', '2'),
-      ('A', '2021-01-10', '3'),
-      ('A', '2021-01-11', '3'),
-      ('A', '2021-01-11', '3'),
-      ('B', '2021-01-01', '2'),
-      ('B', '2021-01-02', '2'),
-      ('B', '2021-01-04', '1'),
-      ('B', '2021-01-11', '1'),
-      ('B', '2021-01-16', '3'),
-      ('B', '2021-02-01', '3'),
-      ('C', '2021-01-01', '3'),
-      ('C', '2021-01-01', '3'),
-      ('C', '2021-01-07', '3');
-     
-    
-    CREATE TABLE menu (
-      "product_id" INTEGER,
-      "product_name" VARCHAR(5),
-      "price" INTEGER
-    );
-    
-    INSERT INTO menu
-      ("product_id", "product_name", "price")
-    VALUES
-      ('1', 'sushi', '10'),
-      ('2', 'curry', '15'),
-      ('3', 'ramen', '12');
-      
-    
-    CREATE TABLE members (
-      "customer_id" VARCHAR(1),
-      "join_date" DATE
-    );
-    
-    INSERT INTO members
-      ("customer_id", "join_date")
-    VALUES
-      ('A', '2021-01-07'),
-      ('B', '2021-01-09');
-
 ---
 
-**Query #1**
+**Query #1** What is the total amount each customer spent at the restaurant?
 
     SELECT sa.customer_id, SUM(me.price) as Total_Spend
     FROM dannys_diner.sales sa
@@ -71,7 +17,7 @@
 | A           | 76          |
 
 ---
-**Query #2**
+**Query #2** How many days has each customer visited the restaurant?
 
     SELECT customer_id, count(distinct(order_date)) as Total_Visits
     FROM dannys_diner.sales
@@ -84,7 +30,7 @@
 | C           | 2            |
 
 ---
-**Query #3**
+**Query #3** What was the first item from the menu purchased by each customer?
 
     SELECT tbl.customer_id, tbl.product_id
     FROM
@@ -102,7 +48,7 @@
 | C           | 3          |
 
 ---
-**Query #4**
+**Query #4** What is the most purchased item on the menu and how many times was it purchased by all customers?
 
     SELECT customer_id, count(product_id)
     FROM dannys_diner.sales
@@ -122,7 +68,7 @@
 | C           | 3     |
 
 ---
-**Query #5**
+**Query #5** Which item was the most popular for each customer?
 
     SELECT tbl2.customer_id, tbl2.product_id
     FROM
@@ -146,7 +92,7 @@
 | C           | 3          |
 
 ---
-**Query #6**
+**Query #6** Which item was purchased first by the customer after they became a member?
 
     SELECT tbl2.customer_id, tbl2.product_id
     FROM (
@@ -168,7 +114,7 @@
 | B           | 1          |
 
 ---
-**Query #7**
+**Query #7** Which item was purchased just before the customer became a member?
 
     SELECT tbl2.customer_id, tbl2.product_id
     FROM (
@@ -190,7 +136,7 @@
 | B           | 1          |
 
 ---
-**Query #8**
+**Query #8** What is the total items and amount spent for each member before they became a member?
 
     SELECT sa.customer_id, COUNT(sa.product_id), SUM(men.price) 
     FROM dannys_diner.sales sa
@@ -207,14 +153,14 @@
 | A           | 2     | 25  |
 
 ---
-**Query #9**
+**Query #9** If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?
 
     SELECT tbl.customer_id, SUM(tbl.points) 
     FROM (
     	SELECT sa.customer_id, men.product_name, men.price,
     	CASE
-    		WHEN men.product_name = 'sushi' THEN men.price*2
-        	ELSE men.price
+    		WHEN men.product_name = 'sushi' THEN men.price*20
+        	ELSE men.price*10
     	END as points
     	FROM dannys_diner.sales sa
     	INNER JOIN dannys_diner.menu men
@@ -229,14 +175,14 @@
 | A           | 86  |
 
 ---
-**Query #10**
+**Query #10** In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customer A and B have at the end of January?
 
     SELECT tbl.customer_id, SUM(tbl.points) 
     FROM 
     	(SELECT sa.customer_id, sa.order_date, men.product_id, 
     	CASE
-    		WHEN me.join_date + 7 >= sa.order_date THEN men.price*2
-       	 	ELSE men.price
+    		WHEN me.join_date + 7 >= sa.order_date THEN men.price * 20
+       	 	ELSE men.price * 10
     	END as points
     	FROM dannys_diner.sales sa
     	INNER JOIN dannys_diner.members me
