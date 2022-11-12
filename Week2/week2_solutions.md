@@ -120,6 +120,38 @@
 | max_pizza_delivered |
 | ------------------- |
 | 3                   |
+    
+---
+    
+**Query #7**
+
+    SELECT co.customer_id, 
+    SUM(
+      CASE
+      	WHEN co.exclusions IS NOT NULL OR co.extras IS NOT NULL THEN 1
+      	ELSE 0
+      END
+    ) as atleast_1_change,
+    SUM(
+      CASE
+      	WHEN co.exclusions IS NULL AND co.extras IS NULL THEN 1
+      	ELSE 0
+      END
+    ) as no_change
+    FROM pizza_runner.customer_orders co
+    JOIN pizza_runner.runner_orders ro
+    ON co.order_id = ro.order_id
+    WHERE ro.cancellation IS NULL
+    GROUP BY co.customer_id
+    ORDER BY co.customer_id;
+
+| customer_id | atleast_1_change | no_change |
+| ----------- | ---------------- | --------- |
+| 101         | 0                | 2         |
+| 102         | 0                | 3         |
+| 103         | 3                | 0         |
+| 104         | 2                | 1         |
+| 105         | 1                | 0         |
 
 ---
 **Query #8** How many pizzas were delivered that had both exclusions and extras?
@@ -152,6 +184,20 @@
 | 19    | 1                      |
 | 21    | 3                      |
 | 23    | 3                      |
+    
+---
+**Query #10** What was the volume of orders for each day of the week?
+
+    SELECT to_char(co.order_time, 'Day') as week_day, COUNT(order_id)
+    FROM pizza_runner.customer_orders co
+    GROUP BY week_day;
+
+| week_day  | count |
+| --------- | ----- |
+| Saturday  | 5     |
+| Thursday  | 3     |
+| Friday    | 1     |
+| Wednesday | 5     |
 
 ---
 <p align=center><b>B. Runner and Customer Experience</b>
@@ -169,6 +215,43 @@
 | 1    | 2     |
 | 2    | 1     |
 | 3    | 1     |
+
+---
+**Query #2** What was the average time in minutes it took for each runner to arrive at the Pizza Runner HQ to pickup the order?
+
+    SELECT ro.runner_id, AVG((EXTRACT(minute from TO_TIMESTAMP(pickup_time, 'YYYY-MM-DD HH24:MI:ss') - order_time))+(EXTRACT(second from TO_TIMESTAMP(pickup_time, 'YYYY-MM-DD HH24:MI:ss') - order_time)/60)) as avg_pickup_duration_mins
+    FROM pizza_runner.runner_orders ro
+    JOIN pizza_runner.customer_orders co
+    ON ro.order_id = co.order_id
+    GROUP BY ro.runner_id;
+
+| runner_id | avg_pickup_duration_mins |
+| --------- | ------------------------ |
+| 3         | 10.466666666666667       |
+| 2         | 23.720000000000002       |
+| 1         | 15.677777777777777       |
+
+---
+**Query #3** Is there any relationship between the number of pizzas and how long the order takes to prepare?
+
+    SELECT co.order_id, COUNT(co.pizza_id), ROUND(AVG((EXTRACT(minute from TO_TIMESTAMP(pickup_time, 'YYYY-MM-DD HH24:MI:ss') - order_time))+(EXTRACT(second from TO_TIMESTAMP(pickup_time, 'YYYY-MM-DD HH24:MI:ss') - order_time)/60))) as avg_prep_time_mins
+    FROM pizza_runner.runner_orders ro
+    JOIN pizza_runner.customer_orders co
+    ON ro.order_id = co.order_id
+    GROUP BY co.order_id;
+
+| order_id | count | avg_prep_time_mins |
+| -------- | ----- | ------------------ |
+| 1        | 1     | 11                 |
+| 2        | 1     | 10                 |
+| 3        | 2     | 21                 |
+| 4        | 3     | 29                 |
+| 5        | 1     | 10                 |
+| 6        | 1     |                    |
+| 7        | 1     | 10                 |
+| 8        | 1     | 20                 |
+| 9        | 1     |                    |
+| 10       | 2     | 16                 |
 
 ---
 **Query #4** What was the average distance travelled for each customer?
