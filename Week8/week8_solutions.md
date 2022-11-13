@@ -93,5 +93,34 @@
 | 13  | 13    |
 
 ---
+<p align=center><b>Data Exploration and Cleansing</b>
+
+---
+
+**Query #1** Which interests have been present in all month_year dates in our dataset?
+
+    WITH cte AS
+    (SELECT COUNT(DISTINCT month_year) as cnt FROM fresh_segments.interest_metrics)
+    
+    SELECT interest_id::INTEGER
+    FROM fresh_segments.interest_metrics
+    GROUP BY 1
+    HAVING COUNT(DISTINCT month_year) = (SELECT cte.cnt FROM cte)
+    LIMIT 10;
+
+| interest_id |
+| ----------- |
+| 4           |
+| 5           |
+| 6           |
+| 12          |
+| 15          |
+| 16          |
+| 17          |
+| 18          |
+| 20          |
+| 25          |
+
+---
 
 [View on DB Fiddle](https://www.db-fiddle.com/f/iRdsT76vaus813crPP8Ma4/10)
