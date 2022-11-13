@@ -238,6 +238,72 @@
 | -------- | ----------- | ----------- |
 | unknown  | unknown     | 16338612234 |
 
+
+---
+<p align=center><b>3. Before & After Analysis</b>
+
+---
+**Query #1** What is the total sales for the 4 weeks before and after 2020-06-15? What is the growth or reduction rate in actual values and percentage of sales?
+
+    WITH total_sales_cte AS (
+    SELECT week_number, SUM(sales) as total_sales, LAG(SUM(sales)::INTEGER, 1) OVER(ORDER BY week_number) as prev_sales
+    FROM data_mart.clean_weekly_sales
+    WHERE week_number BETWEEN EXTRACT(WEEK FROM TO_DATE('2020-06-15', 'YYYY-MM-DD')) - 4 AND EXTRACT(WEEK FROM TO_DATE('2020-06-15', 'YYYY-MM-DD')) + 3
+    GROUP BY week_number)
+    
+    SELECT week_number, ROUND((100.0*(total_sales - prev_sales)/prev_sales),2) as growth_rate
+    FROM total_sales_cte;
+
+| week_number | growth_rate |
+| ----------- | ----------- |
+| 21          |             |
+| 22          | 1.77        |
+| 23          | -1.55       |
+| 24          | 0.67        |
+| 25          | -1.74       |
+| 26          | 0.66        |
+| 27          | 0.17        |
+| 28          | 2.90        |
+
+---
+**Query #2** What about the entire 12 weeks before and after?
+
+    WITH total_sales_cte AS (
+    SELECT week_number, SUM(sales) as total_sales, LAG(SUM(sales)::INTEGER, 1) OVER(ORDER BY week_number) as prev_sales
+    FROM data_mart.clean_weekly_sales
+    WHERE week_number BETWEEN EXTRACT(WEEK FROM TO_DATE('2020-06-15', 'YYYY-MM-DD')) - 12 AND EXTRACT(WEEK FROM TO_DATE('2020-06-15', 'YYYY-MM-DD')) + 11
+    GROUP BY week_number)
+    
+    SELECT week_number, ROUND((100.0*(total_sales - prev_sales)/prev_sales),2) as growth_rate
+    FROM total_sales_cte;
+
+| week_number | growth_rate |
+| ----------- | ----------- |
+| 13          |             |
+| 14          | -1.22       |
+| 15          | -0.87       |
+| 16          | -2.21       |
+| 17          | 0.06        |
+| 18          | 1.53        |
+| 19          | 0.46        |
+| 20          | -1.78       |
+| 21          | -1.01       |
+| 22          | 1.77        |
+| 23          | -1.55       |
+| 24          | 0.67        |
+| 25          | -1.74       |
+| 26          | 0.66        |
+| 27          | 0.17        |
+| 28          | 2.90        |
+| 29          | -1.01       |
+| 30          | 0.53        |
+| 31          | -1.05       |
+| 32          | 0.07        |
+| 33          | 0.40        |
+| 34          | 0.24        |
+| 35          | 1.49        |
+| 36          | -0.05       |
+
 ---
 
 [View on DB Fiddle](https://www.db-fiddle.com/f/jmnwogTsUE8hGqkZv9H7E8/8)
