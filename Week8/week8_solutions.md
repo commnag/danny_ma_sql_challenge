@@ -93,7 +93,7 @@
 | 13  | 13    |
 
 ---
-<p align=center><b>Data Exploration and Cleansing</b>
+<p align=center><b>Interest Analysis</b>
 
 ---
 
