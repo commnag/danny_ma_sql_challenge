@@ -112,19 +112,15 @@
 ---
 **Query #7** Which item was purchased just before the customer became a member?
 
-    SELECT tbl2.customer_id, tbl2.product_id
-    FROM (
-    	SELECT *, RANK()
-    	OVER(PARTITION BY tbl.customer_id ORDER BY tbl.order_date DESC)
-    	FROM (
-    		SELECT sa.customer_id, sa.product_id, sa.order_date, me.join_date
+     SELECT tbl1.customer_id, tbl1.product_id
+     FROM (
+    		SELECT sa.customer_id, sa.product_id, sa.order_date, me.join_date, RANK() OVER(PARTITION BY sa.customer_id ORDER BY sa.order_date DESC)
     		FROM dannys_diner.sales sa
     		INNER JOIN dannys_diner.members me
     		ON sa.customer_id = me.customer_id
     		AND sa.order_date<=me.join_date
-      	) as tbl
-      ) as tbl2
-    WHERE tbl2.rank=1;
+      	) as tbl1
+    WHERE tbl1.rank=1;
 
 | customer_id | product_id |
 | ----------- | ---------- |
