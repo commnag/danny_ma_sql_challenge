@@ -94,19 +94,15 @@
 ---
 **Query #6** Which item was purchased first by the customer after they became a member?
 
-    SELECT tbl2.customer_id, tbl2.product_id
+    SELECT tbl.customer_id, tbl.product_id
     FROM (
-    	SELECT *, RANK()
-    	OVER(PARTITION BY tbl.customer_id ORDER BY tbl.order_date)
-    	FROM (
-    		SELECT sa.customer_id, sa.product_id, sa.order_date, me.join_date
-    		FROM dannys_diner.sales sa
-    		INNER JOIN dannys_diner.members me
-    		ON sa.customer_id = me.customer_id
-    		AND sa.order_date>me.join_date
-      	) as tbl
-      ) as tbl2
-    WHERE tbl2.rank=1;
+		SELECT sa.customer_id, sa.product_id, sa.order_date, me.join_date, RANK() OVER(PARTITION BY sa.customer_id ORDER BY sa.order_date)
+		FROM dannys_diner.sales sa
+		INNER JOIN dannys_diner.members me
+		ON sa.customer_id = me.customer_id
+		AND sa.order_date>me.join_date
+  	) as tbl
+    WHERE tbl.rank=1;
 
 | customer_id | product_id |
 | ----------- | ---------- |
